@@ -40,7 +40,7 @@ public class FluidDrawer : MonoBehaviour {
 	{
 		index = (int)y*FluidSolver.height + x;
 		
-		solver.dens_prev[index] += 255;		
+		solver.dens_prev[index] += 30;		
 	}
 	
 	public void AddForce(int x, int y, Vector2 f)

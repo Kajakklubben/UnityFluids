@@ -5,6 +5,7 @@ public class FluidMouseInput : MonoBehaviour {
 	
 	public FluidDrawer fluidDrawer;
 	public FluidSolver solver;
+	public float mouseForce = 1.0f;
 	
 	Vector2 lastPos;
 	bool applyForce;
@@ -56,7 +57,7 @@ public class FluidMouseInput : MonoBehaviour {
 		//Apply force
 		if(applyForce){
 			Vector2 force = lastPos-uv;					
-			fluidDrawer.AddForce((int)uv.x, (int)uv.y, force);
+			fluidDrawer.AddForce((int)uv.x, (int)uv.y, force*mouseForce);
 		}
 		
 		lastPos = uv;

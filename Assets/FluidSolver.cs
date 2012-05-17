@@ -61,10 +61,15 @@ public class FluidSolver : MonoBehaviour
 	void Update ()
 	{
 		
-		dt = Time.deltaTime;
+		dt = Time.deltaTime*100.0f;
+		
 	
-	//	vel_step( N, u, v, u_prev, v_prev, visc, dt );
+		vel_step( N, u, v, u_prev, v_prev, visc, dt );
 		dens_step( N, dens, dens_prev, u, v, diff, dt );
+	
+		for (int i=0 ; i<size ; i++ ) {
+			u_prev[i] = v_prev[i] = dens_prev[i] = 0.0f;
+		}
 	
 	}
 	
