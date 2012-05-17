@@ -8,10 +8,12 @@ public class FluidDrawer : MonoBehaviour {
 	public Texture2D tex;
 	
 	int index;
-	bool debugForces = true;
+	public bool debugForces = true;
+	
+	Color[] colors;
 	
 	void Start () {
-	
+		colors = new Color[64*64];
 	}
 		
 	void Update () {
@@ -23,36 +25,51 @@ public class FluidDrawer : MonoBehaviour {
 	}
 	
 	
-	void UpdateTexture(){
-	
-		tex.SetPixels(solver.color);
+	void UpdateTexture()
+	{
+		for(int i=0;i<solver.size;i++){
+			colors[i].g = solver.dens[i]/255.0f;
+		}
+		
+		tex.SetPixels(colors);
 		
 		tex.Apply();
 	}
 	
-	public void DrawPixel(int x, int y){
-		index = y*solver.height + x;
+	public void DrawPixel(int x, int y)
+	{
+		index = (int)y*FluidSolver.height + x;
 		
-		solver.colorOld[index] = new Color(100,0,0);		
+		solver.dens_prev[index] += 255;		
 	}
 	
-	public void AddForce(int x, int y, Vector2 f){
-		index = y*solver.height + x;
+	public void AddForce(int x, int y, Vector2 f)
+	{
+		index = y*FluidSolver.height + x;
 		
-		solver.uvOld[index] += f;		
+		solver.u_prev[index] += f.x;		
+		solver.v_prev[index] += f.y;		
 	}
 	
-	public void DebugForces(){
-		float w = renderer.bounds.extents.x;
+	public void DebugForces()
+	{		
+		Vector3 b = renderer.bounds.extents;
 		
-		float h = renderer.bounds.extents.z;
+		float wi = (b.x * 2) / FluidSolver.width;
+		float hi = (b.z * 2) / FluidSolver.height;
 		
-		Vector2 pos = new Vector2(0, 0);
-		
-		Vector2 dir = new Vector2(0, 0);
-		
-		//for(int i=0; i<solver.  c in solver.color
+		Vector3 start = transform.position + new Vector3(b.x, 0, b.z);			
+
+		for(int i=0; i<solver.size; i++)
+		{
+			int x = i % FluidSolver.width;
+			int y = (int)Mathf.Floor(i / FluidSolver.height);
 			
-		//Debug.DrawLine(pos, dir);
+			Vector3 pos = start - new Vector3(x*wi, 0, y*hi);			
+			Vector3 dir = pos + new Vector3(solver.u_prev[i]/2.0f, 0, solver.v_prev[i]/2.0f);			
+			
+			Debug.DrawLine(pos, dir, Color.red);	
+		}	
+		
 	}
 }
