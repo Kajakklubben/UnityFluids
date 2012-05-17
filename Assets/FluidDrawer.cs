@@ -21,7 +21,7 @@ public class FluidDrawer : MonoBehaviour {
 	
 	
 	void UpdateTexture(){
-		
+	
 		tex.SetPixels(solver.color);
 		
 		tex.Apply();
@@ -30,7 +30,7 @@ public class FluidDrawer : MonoBehaviour {
 	public void DrawPixel(int x, int y){
 		index = y*solver.height + x;
 		
-		solver.color[index] = new Color(100,0,0);
+		solver.colorOld[index] = new Color(100,0,0);
 		
 	}
 }
