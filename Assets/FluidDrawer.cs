@@ -23,36 +23,47 @@ public class FluidDrawer : MonoBehaviour {
 	}
 	
 	
-	void UpdateTexture(){
+	void UpdateTexture()
+	{
 	
 		tex.SetPixels(solver.color);
 		
 		tex.Apply();
 	}
 	
-	public void DrawPixel(int x, int y){
+	public void DrawPixel(int x, int y)
+	{
 		index = y*solver.height + x;
 		
 		solver.colorOld[index] = new Color(100,0,0);		
 	}
 	
-	public void AddForce(int x, int y, Vector2 f){
+	public void AddForce(int x, int y, Vector2 f)
+	{
 		index = y*solver.height + x;
 		
 		solver.uvOld[index] += f;		
 	}
 	
-	public void DebugForces(){
-		float w = renderer.bounds.extents.x;
+	public void DebugForces()
+	{		
+		Vector3 b = renderer.bounds.extents;
 		
-		float h = renderer.bounds.extents.z;
+		float wi = (b.x * 2) / solver.width;
+		float hi = (b.z * 2) / solver.height;
 		
-		Vector2 pos = new Vector2(0, 0);
-		
-		Vector2 dir = new Vector2(0, 0);
-		
-		//for(int i=0; i<solver.  c in solver.color
+		Vector3 start = transform.position + new Vector3(b.x, 0, b.z);			
+
+		for(int i=0; i<solver.color.Length; i++)
+		{
+			int x = i % solver.width;
+			int y = (int)Mathf.Floor(i / solver.height);
 			
-		//Debug.DrawLine(pos, dir);
+			Vector3 pos = start - new Vector3(x*wi, 0, y*hi);			
+			Vector3 dir = pos + new Vector3(solver.uvOld[i].x/2, 0, solver.uvOld[i].y/2);			
+			
+			Debug.DrawLine(pos, dir, Color.red);	
+		}	
+		
 	}
 }
