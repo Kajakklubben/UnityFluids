@@ -1,18 +1,14 @@
-
-
-
 using UnityEngine;
+using System;
 using System.Collections;
 
-public class FluidSolver : MonoBehaviour {
-	const double ZERO_THRESH =	0.0000000001;
-	
+public class FluidSolver : MonoBehaviour
+{
+	const double ZERO_THRESH = 0.0000000001;
 	int NX = 62;
 	int NY = 62;
-	
 	public Color[] color, colorOld;
 	public Vector2[] uv, uvOld;
-	
 	public float	colorDiffusion;
 	public float	viscocity;
 	public float	fadeSpeed = 0.05f;
@@ -25,7 +21,7 @@ public class FluidSolver : MonoBehaviour {
 	public int width;
 	public int height;
 	float invWidth;
-	float invHeight;	
+	float invHeight;
 	int		_numCells;
 	float	_invNX, _invNY, _invNumCells;
 	bool	_isInited;
@@ -36,7 +32,8 @@ public class FluidSolver : MonoBehaviour {
 
 
 	// Use this for initialization
-	void Start () {
+	void Start ()
+	{
 		_isInited = false;
 		
 		_numCells = (NX + 2) * (NY + 2);
@@ -45,103 +42,103 @@ public class FluidSolver : MonoBehaviour {
 		_invNY = 1.0f / NY;
 		_invNumCells = 1.0f / _numCells;
 		
-		width           = NX + 2;
-		height          = NY + 2;
-		invWidth        = 1.0f/width;
-		invHeight       = 1.0f/height;
+		width = NX + 2;
+		height = NY + 2;
+		invWidth = 1.0f / width;
+		invHeight = 1.0f / height;
 		
-		reset();
+		reset ();
 	}
 	
-	
-	void reset() {
+	void reset ()
+	{
 		_isInited = true;
 		
-		color		= new Color[_numCells];
-		colorOld	= new Color[_numCells];
-		uv    = new Vector2[_numCells];
+		color = new Color[_numCells];
+		colorOld = new Color[_numCells];
+		uv = new Vector2[_numCells];
 		uvOld = new Vector2[_numCells];
 		
-		for ( int i = _numCells-1; i>=0; --i ) {
-			color[i] = Color.black;
-			colorOld[i] = Color.blue;
-			uv[i] = Vector2.zero;
-			uvOld[i] = Vector2.zero;
+		for (int i = _numCells-1; i>=0; --i) {
+			color [i] = Color.black;
+			colorOld [i] = Color.blue;
+			uv [i] = Vector2.zero;
+			uvOld [i] = Vector2.zero;
 		}
 	}
 	
-	void CHECK_ZERO(float p){
-		if(Mathf.Abs(p)<ZERO_THRESH) p = 0;
+	void CHECK_ZERO (float p)
+	{
+		if (Mathf.Abs (p) < ZERO_THRESH)
+			p = 0;
 	}
 	
-	int FLUID_IX(int i, int j)	
+	int FLUID_IX (int i, int j)
 	{
-		return	((i) + (NX + 2)  *(j));
+		return	((i) + (NX + 2) * (j));
 	}
 	
-	
-	
-	static void SWAP<T>(ref T lhs, ref T rhs)
+	static void SWAP<T> (ref T lhs, ref T rhs)
 	{
-    	T temp;
-    	temp = lhs;
-    	lhs = rhs;
-    	rhs = temp;
+		T temp;
+		temp = lhs;
+		lhs = rhs;
+		rhs = temp;
 	}
 	
 	
 	// Update is called once per frame
-	void Update () {
+	void Update ()
+	{
 		
 		deltaT = Time.deltaTime;
 	
 		{ //addSource(uv, uvOld);
-			for(int i = _numCells-1; i >=0; --i) {
-				uv[i] += uvOld[i] * deltaT;
+			for (int i = _numCells-1; i >=0; --i) {
+				uv [i] += uvOld [i] * deltaT;
 			}
 		}
 
-		SWAP(ref uv,ref uvOld);
+		SWAP (ref uv, ref uvOld);
 		
-		diffuseUV( viscocity );
+		diffuseUV (viscocity);
 		
-		project(uv, uvOld);
+		project (uv, uvOld);
 		
-		SWAP(ref uv, ref uvOld);
+		/*SWAP(ref uv, ref uvOld);
 		
 		advect2d(uv, uvOld);
 		
-		project(uv, uvOld);
+		project(uv, uvOld);*/
 		
 		//if(doRGB)
 		{
 			
 			{ //addSource(color, colorOld);
-				for(int i = _numCells-1; i >=0; --i) {
-					color[i] += colorOld[i] * deltaT;
+				for (int i = _numCells-1; i >=0; --i) {
+					color [i] += colorOld [i] * deltaT;
 				}
 			}
 			
-			SWAP(ref color,ref colorOld);
+			SWAP (ref color, ref colorOld);
 			
 			
-			if( colorDiffusion!=0 && deltaT!=0 )
-			{
-				diffuseRGB(0, colorDiffusion );
+			if (colorDiffusion != 0 && deltaT != 0) {
+				diffuseRGB (0, colorDiffusion);
 				
-				SWAP(ref color,ref colorOld);
+				SWAP (ref color, ref colorOld);
 				
 
 			}
 			
-			advectRGB(0, uv);
-			fadeRGB();
+			advectRGB (0, uv);
+			fadeRGB ();
 		} 
 		
 	}
 	
-	
-	void fadeRGB() {
+	void fadeRGB ()
+	{
 		// I want the fluid to gradually fade out so the screen doesn't fill. the amount it fades out depends on how full it is, and how uniform (i.e. boring) the fluid is...
 		//		float holdAmount = 1 - _avgDensity * _avgDensity * fadeSpeed;	// this is how fast the density will decay depending on how full the screen currently is
 		float holdAmount = 1 - fadeSpeed;
@@ -154,24 +151,23 @@ public class FluidSolver : MonoBehaviour {
 		Color tmp = Color.black;
 		
 
-		for (int i = _numCells-1; i >=0; --i)
-		{
+		for (int i = _numCells-1; i >=0; --i) {
 			// clear old values
-			uvOld[i] = Vector2.zero;
-			colorOld[i] = Color.black;
+			uvOld [i] = Vector2.zero;
+			colorOld [i] = Color.black;
 			
 			// calc avg speed
-			_avgSpeed += uv[i].x * uv[i].x + uv[i].y * uv[i].y;
+			_avgSpeed += uv [i].x * uv [i].x + uv [i].y * uv [i].y;
 			
 			// calc avg density
-			tmp.r = Mathf.Min( 1.0f, color[i].r );
-			tmp.g = Mathf.Min( 1.0f, color[i].g );
-			tmp.b = Mathf.Min( 1.0f, color[i].b );
+			tmp.r = Mathf.Min (1.0f, color [i].r);
+			tmp.g = Mathf.Min (1.0f, color [i].g);
+			tmp.b = Mathf.Min (1.0f, color [i].b);
 //			tmp.a = min( 1.0f, color[i].a );
 			
 //			float density = max(tmp.a, max( tmp.r, max( tmp.g, tmp.b ) ) );
 //			float density = max( tmp.r, max( tmp.g, tmp.b ) );
-			float density = Mathf.Max( tmp.r, Mathf.Max( tmp.g, tmp.b ) );
+			float density = Mathf.Max (tmp.r, Mathf.Max (tmp.g, tmp.b));
 			_avgDensity += density;	// add it up
 			
 			// calc deviation (for _uniformity)
@@ -179,14 +175,14 @@ public class FluidSolver : MonoBehaviour {
 			totalDeviations += currentDeviation * currentDeviation;
 			
 			// fade out old
-			color[i] = tmp * holdAmount;
+			color [i] = tmp * holdAmount;
 			
-			CHECK_ZERO(color[i].r);
-			CHECK_ZERO(color[i].g);
-			CHECK_ZERO(color[i].b);
+			CHECK_ZERO (color [i].r);
+			CHECK_ZERO (color [i].g);
+			CHECK_ZERO (color [i].b);
 //			CHECK_ZERO(color[i].a);
-			CHECK_ZERO(uv[i].x);
-			CHECK_ZERO(uv[i].y);
+			CHECK_ZERO (uv [i].x);
+			CHECK_ZERO (uv [i].y);
 		}
 		_avgDensity *= _invNumCells;
 		_avgSpeed *= _invNumCells;
@@ -260,32 +256,35 @@ public class FluidSolver : MonoBehaviour {
 	//          d    d0    du    dv
 	// advect(1, u, uOld, uOld, vOld);
 	// advect(2, v, vOld, uOld, vOld);*/
-	void advect2d( Vector2[] uv, Vector2[] duv ) {
+	void advect2d (Vector2[] uv, Vector2[] duv)
+	{
 		int i0, j0, i1, j1;
 		float s0, t0, s1, t1;
-		int	index;
+		int index;
 		
 		float dt0x = deltaT * NX;
 		float dt0y = deltaT * NY;
 		
-		for (int j = NY; j > 0; --j)
-		{
-			for (int i = NX; i > 0; --i)
-			{
-				index = FLUID_IX(i, j);
-				float x = i - dt0x * duv[index].x;
-				float y = j - dt0y * duv[index].y;
+		for (int j = NY; j > 0; --j) {
+			for (int i = NX; i > 0; --i) {
+				index = FLUID_IX (i, j);
+				float x = i - dt0x * duv [index].x;
+				float y = j - dt0y * duv [index].y;
 				
-				if (x > NX + 0.5) x = NX + 0.5f;
-				if (x < 0.5)     x = 0.5f;
+				if (x > NX + 0.5)
+					x = NX + 0.5f;
+				if (x < 0.5)
+					x = 0.5f;
 				
-				i0 = (int) x;
+				i0 = (int)x;
 				i1 = i0 + 1;
 				
-				if (y > NY + 0.5) y = NY + 0.5f;
-				if (y < 0.5)     y = 0.5f;
+				if (y > NY + 0.5)
+					y = NY + 0.5f;
+				if (y < 0.5)
+					y = 0.5f;
 				
-				j0 = (int) y;
+				j0 = (int)y;
 				j1 = j0 + 1;
 				
 				s1 = x - i0;
@@ -293,54 +292,57 @@ public class FluidSolver : MonoBehaviour {
 				t1 = y - j0;
 				t0 = 1 - t1;
 				
-				uv[index].x = s0 * (t0 * duv[FLUID_IX(i0, j0)].x + t1 * duv[FLUID_IX(i0, j1)].x)
-				+ s1 * (t0 * duv[FLUID_IX(i1, j0)].x + t1 * duv[FLUID_IX(i1, j1)].x);
-				uv[index].y = s0 * (t0 * duv[FLUID_IX(i0, j0)].y + t1 * duv[FLUID_IX(i0, j1)].y)
-				+ s1 * (t0 * duv[FLUID_IX(i1, j0)].y + t1 * duv[FLUID_IX(i1, j1)].y);
+				uv [index].x = s0 * (t0 * duv [FLUID_IX (i0, j0)].x + t1 * duv [FLUID_IX (i0, j1)].x)
+				+ s1 * (t0 * duv [FLUID_IX (i1, j0)].x + t1 * duv [FLUID_IX (i1, j1)].x);
+				uv [index].y = s0 * (t0 * duv [FLUID_IX (i0, j0)].y + t1 * duv [FLUID_IX (i0, j1)].y)
+				+ s1 * (t0 * duv [FLUID_IX (i1, j0)].y + t1 * duv [FLUID_IX (i1, j1)].y);
 				
 			}
 		}
-		setBoundary2d(1, uv);
-		setBoundary2d(2, uv);	
+		setBoundary2d (1, uv);
+		setBoundary2d (2, uv);	
 	}
 	
-	void advectRGB(int bound, Vector2[] duv) {
+	void advectRGB (int bound, Vector2[] duv)
+	{
 		int i0, j0;
 		float x, y, s0, t0, s1, t1, dt0x, dt0y;
-		int	index;
+		int index;
 		
 		dt0x = deltaT * NX;
 		dt0y = deltaT * NY;
 		
-		for (int j = NY; j > 0; --j)
-		{
-			for (int i = NX; i > 0; --i)
-			{
-				index = FLUID_IX(i, j);
-				x = i - dt0x * duv[index].x;
-				y = j - dt0y * duv[index].y;
+		for (int j = NY; j > 0; --j) {
+			for (int i = NX; i > 0; --i) {
+				index = FLUID_IX (i, j);
+				x = i - dt0x * duv [index].x;
+				y = j - dt0y * duv [index].y;
 				
-				if (x > NX + 0.5) x = NX + 0.5f;
-				if (x < 0.5)     x = 0.5f;
+				if (x > NX + 0.5)
+					x = NX + 0.5f;
+				if (x < 0.5)
+					x = 0.5f;
 				
-				i0 = (int) x;
+				i0 = (int)x;
 				
-				if (y > NY + 0.5) y = NY + 0.5f;
-				if (y < 0.5)     y = 0.5f;
+				if (y > NY + 0.5)
+					y = NY + 0.5f;
+				if (y < 0.5)
+					y = 0.5f;
 				
-				j0 = (int) y;
+				j0 = (int)y;
 				
 				s1 = x - i0;
 				s0 = 1 - s1;
 				t1 = y - j0;
 				t0 = 1 - t1;
 				
-				i0 = FLUID_IX(i0, j0);	//we don't need col/row index any more but index in 1 dimension
+				i0 = FLUID_IX (i0, j0);	//we don't need col/row index any more but index in 1 dimension
 				j0 = i0 + (NX + 2);
-				color[index] = ( colorOld[i0] * t0 + colorOld[j0] * t1 ) * s0 + ( colorOld[i0+1] * t0 + colorOld[j0+1] * t1) * s1;
+				color [index] = (colorOld [i0] * t0 + colorOld [j0] * t1) * s0 + (colorOld [i0 + 1] * t0 + colorOld [j0 + 1] * t1) * s1;
 			}
 		}
-		setBoundaryRGB();
+		setBoundaryRGB ();
 	}
 	/*
 	void FluidSolver::diffuse( int bound, float* c, float* c0, float diff )
@@ -349,327 +351,359 @@ public class FluidSolver : MonoBehaviour {
 		linearSolver( bound, c, c0, a, 1.0 + 4 * a );
 	}
 	*/
-	void diffuseRGB( int bound, float diff )
+	void diffuseRGB (int bound, float diff)
 	{
 		float a = deltaT * diff * NX * NY;
-		linearSolverRGB( a, 1.0f + 4 * a );
+		linearSolverRGB (a, 1.0f + 4 * a);
 	}
 	
-	void diffuseUV( float diff )
+	void diffuseUV (float diff)
 	{
 		float a = deltaT * diff * NX * NY;
-		linearSolverUV( a, 1.0f + 4 * a );
+		linearSolverUV (a, 1.0f + 4 * a);
 	}
 	
-	void project(Vector2[] xy, Vector2[] pDiv) 
+	void project (Vector2[] xy, Vector2[] pDiv)
 	{
-		float	h;
-		int		index;
-		int		step_x = NX + 2;
+		float h;
+		int index;
+		int step_x = NX + 2;
 		
 		h = - 0.5f / NX;
-		for (int j = NY; j > 0; --j)
-		{
-			index = FLUID_IX(NX, j);
-			for (int i = NX; i > 0; --i)
-			{
-				pDiv[index].x = h * ( xy[index+1].x - xy[index-1].x + xy[index+step_x].y - xy[index-step_x].y );
-				pDiv[index].y = 0;
+		for (int j = NY; j > 0; --j) {
+			index = FLUID_IX (NX, j);
+			for (int i = NX; i > 0; --i) {
+				pDiv [index].x = h * (xy [index + 1].x - xy [index - 1].x + xy [index + step_x].y - xy [index - step_x].y);
+				pDiv [index].y = 0;
 				--index;
 			}
 		}
 		
-	/*	unsafe {
-		setBoundary02d( ( &pDiv[0].x ));
-			setBoundary02d( ( &pDiv[0].y ));
-		}*/
+		
+		
+		setBoundary02d (pDiv, true);
+		setBoundary02d (pDiv, false);
+
 			
-		linearSolverProject( pDiv );
+		linearSolverProject (pDiv);
 		
 		float fx = 0.5f * NX;
 		float fy = 0.5f * NY;	//maa	change it from NX to NY
-		for (int j = NY; j > 0; --j)
-		{
-			index = FLUID_IX(NX, j);
-			for (int i = NX; i > 0; --i)
-			{
-				xy[index].x -= fx * (pDiv[index+1].x - pDiv[index-1].x);
-				xy[index].y -= fy * (pDiv[index+step_x].x - pDiv[index-step_x].x);
+		for (int j = NY; j > 0; --j) {
+			index = FLUID_IX (NX, j);
+			for (int i = NX; i > 0; --i) {
+				xy [index].x -= fx * (pDiv [index + 1].x - pDiv [index - 1].x);
+				xy [index].y -= fy * (pDiv [index + step_x].x - pDiv [index - step_x].x);
 				--index;
 			}
 		}
 		
-		setBoundary2d(1, xy);
-		setBoundary2d(2, xy);
+		setBoundary2d (1, xy);
+		setBoundary2d (2, xy);
 	}
 	
 	
 	//	Gauss-Seidel relaxation
-	void linearSolver( int bound, float[] x,  float[] x0, float a, float c )
+	void linearSolver (int bound, float[] x, float[] x0, float a, float c)
 	{
-		int	step_x = NX + 2;
+		int step_x = NX + 2;
 		int index;
 		c = 1.0f / c;
-		for (int k = solverIterations; k > 0; --k)	// MEMO 
-		{
-			for (int j = NY; j > 0 ; --j)
-			{
-				index = FLUID_IX(NX, j );
-				for (int i = NX; i > 0 ; --i)
-				{
-					x[index] = ( ( x[index-1] + x[index+1] + x[index - step_x] + x[index + step_x] ) * a + x0[index] ) * c;
+		for (int k = solverIterations; k > 0; --k) {	// MEMO
+			for (int j = NY; j > 0; --j) {
+				index = FLUID_IX (NX, j);
+				for (int i = NX; i > 0; --i) {
+					x [index] = ((x [index - 1] + x [index + 1] + x [index - step_x] + x [index + step_x]) * a + x0 [index]) * c;
 					--index;				
 				}
 			}
-			setBoundary( bound, x );
+			setBoundary (bound, x);
 		}
 	}
 	
-	void linearSolverProject( Vector2[] pdiv )
+	void linearSolverProject (Vector2[] pdiv)
 	{
-		int	step_x = NX + 2;
+		int step_x = NX + 2;
 		int index;
 		for (int k = solverIterations; k > 0; --k) {
-			for (int j = NY; j > 0 ; --j) {
-				index = FLUID_IX(NX, j );
-				float prev = pdiv[index+1].x;
-				for (int i = NX; i > 0 ; --i)
-				{
-					prev = ( pdiv[index-1].x + prev + pdiv[index - step_x].x + pdiv[index + step_x].x + pdiv[index].y ) * 0.25f;
-					pdiv[index].x = prev;
+			for (int j = NY; j > 0; --j) {
+				index = FLUID_IX (NX, j);
+				float prev = pdiv [index + 1].x;
+				for (int i = NX; i > 0; --i) {
+					prev = (pdiv [index - 1].x + prev + pdiv [index - step_x].x + pdiv [index + step_x].x + pdiv [index].y) * 0.25f;
+					pdiv [index].x = prev;
 					--index;
 				}
 			}
-		//	setBoundary02d( reinterpret_cast<Vec2f*>( &pdiv[0].x ) );
+			
+			
+			setBoundary02d (pdiv, true);
 		}
 	}
 	
-	void linearSolverRGB( float a, float c )
+	void linearSolverRGB (float a, float c)
 	{
 		int index3, index4, index;
-		int	step_x = NX + 2;
+		int step_x = NX + 2;
 		c = 1.0f / c;
-		for ( int k = solverIterations; k > 0; --k )	// MEMO
-		{           
-			for (int j = NY; j > 0 ; --j)
-			{
-				index = FLUID_IX(NX, j );
+		for (int k = solverIterations; k > 0; --k) {	// MEMO           
+			for (int j = NY; j > 0; --j) {
+				index = FLUID_IX (NX, j);
 				//index1 = index - 1;		//FLUID_IX(i-1, j);
 				//index2 = index + 1;		//FLUID_IX(i+1, j);
 				index3 = index - step_x;	//FLUID_IX(i, j-1);
 				index4 = index + step_x;	//FLUID_IX(i, j+1);
-				for (int i = NX; i > 0 ; --i)
-				{	
-					color[index] = ( ( color[index-1] + color[index+1]  +  color[index3] + color[index4] ) * a  +  colorOld[index] ) * c;                                
+				for (int i = NX; i > 0; --i) {	
+					color [index] = ((color [index - 1] + color [index + 1] + color [index3] + color [index4]) * a + colorOld [index]) * c;                                
 					--index;
 					--index3;
 					--index4;
 				}
 			}
-			setBoundaryRGB();	
+			setBoundaryRGB ();	
 		}
 	}
 	
-	void linearSolverUV( float a, float c )
+	void linearSolverUV (float a, float c)
 	{
 		int index;
-		int	step_x = NX + 2;
+		int step_x = NX + 2;
 		c = 1.0f / c;
 		Vector2[] localUV = uv;
 		Vector2[] localOldUV = uvOld;
 		
-		for (int k = solverIterations; k > 0; --k)	// MEMO
-		{           
-			for (int j = NY; j > 0 ; --j)
-			{
-				index = FLUID_IX(NX, j );
-				float prevU = localUV[index+1].x;
-				float prevV = localUV[index+1].y;
-				for (int i = NX; i > 0 ; --i)
-				{
-					prevU = ( ( localUV[index-1].x + prevU + localUV[index - step_x].x + localUV[index + step_x].x ) * a  + localOldUV[index].x ) * c;
-					prevV = ( ( localUV[index-1].y + prevV + localUV[index - step_x].y + localUV[index + step_x].y ) * a  + localOldUV[index].y ) * c;
-					localUV[index].x = prevU;
-					localUV[index].y = prevV;
+		for (int k = solverIterations; k > 0; --k) {	// MEMO           
+			for (int j = NY; j > 0; --j) {
+				index = FLUID_IX (NX, j);
+				float prevU = localUV [index + 1].x;
+				float prevV = localUV [index + 1].y;
+				for (int i = NX; i > 0; --i) {
+					prevU = ((localUV [index - 1].x + prevU + localUV [index - step_x].x + localUV [index + step_x].x) * a + localOldUV [index].x) * c;
+					prevV = ((localUV [index - 1].y + prevV + localUV [index - step_x].y + localUV [index + step_x].y) * a + localOldUV [index].y) * c;
+					localUV [index].x = prevU;
+					localUV [index].y = prevV;
 					--index;
 				}
 			}
-			setBoundary2d( 1, uv );
+			setBoundary2d (1, uv);
 		}
 	}
 	
-	
-	void setBoundary(int bound, float[] x)
+	void setBoundary (int bound, float[] x)
 	{
 		int dst1, dst2, src1, src2;
-		int step = FLUID_IX(0, 1) - FLUID_IX(0, 0);
+		int step = FLUID_IX (0, 1) - FLUID_IX (0, 0);
 		
-		dst1 = FLUID_IX(0, 1);
-		src1 = FLUID_IX(1, 1);
-		dst2 = FLUID_IX(NX+1, 1 );
-		src2 = FLUID_IX(NX, 1);
-		if( wrap_x )
-			SWAP( ref src1, ref src2 );
-		if( bound == 1 && !wrap_x )
-			for (int i = NY; i > 0; --i )
-			{
-				x[dst1] = -x[src1];	dst1 += step;	src1 += step;	
-				x[dst2] = -x[src2];	dst2 += step;	src2 += step;	
+		dst1 = FLUID_IX (0, 1);
+		src1 = FLUID_IX (1, 1);
+		dst2 = FLUID_IX (NX + 1, 1);
+		src2 = FLUID_IX (NX, 1);
+		if (wrap_x)
+			SWAP (ref src1, ref src2);
+		if (bound == 1 && !wrap_x)
+			for (int i = NY; i > 0; --i) {
+				x [dst1] = -x [src1];
+				dst1 += step;
+				src1 += step;	
+				x [dst2] = -x [src2];
+				dst2 += step;
+				src2 += step;	
 			}
 		else
-			for (int i = NY; i > 0; --i )
-			{
-				x[dst1] = x[src1];	dst1 += step;	src1 += step;	
-				x[dst2] = x[src2];	dst2 += step;	src2 += step;	
+			for (int i = NY; i > 0; --i) {
+				x [dst1] = x [src1];
+				dst1 += step;
+				src1 += step;	
+				x [dst2] = x [src2];
+				dst2 += step;
+				src2 += step;	
 			}
 		
-		dst1 = FLUID_IX(1, 0);
-		src1 = FLUID_IX(1, 1);
-		dst2 = FLUID_IX(1, NY+1);
-		src2 = FLUID_IX(1, NY);
-		if( wrap_y )
-			SWAP( ref src1, ref src2 );
-		if( bound == 2 && !wrap_y )
-			for (int i = NX; i > 0; --i )
-			{
-				x[dst1++] = -x[src1++];	
-				x[dst2++] = -x[src2++];	
+		dst1 = FLUID_IX (1, 0);
+		src1 = FLUID_IX (1, 1);
+		dst2 = FLUID_IX (1, NY + 1);
+		src2 = FLUID_IX (1, NY);
+		if (wrap_y)
+			SWAP (ref src1, ref src2);
+		if (bound == 2 && !wrap_y)
+			for (int i = NX; i > 0; --i) {
+				x [dst1++] = -x [src1++];	
+				x [dst2++] = -x [src2++];	
 			}
 		else
-			for (int i = NX; i > 0; --i )
-			{
-				x[dst1++] = x[src1++];
-				x[dst2++] = x[src2++];	
+			for (int i = NX; i > 0; --i) {
+				x [dst1++] = x [src1++];
+				x [dst2++] = x [src2++];	
 			}
 		
-		x[FLUID_IX(  0,   0)] = 0.5f * (x[FLUID_IX(1, 0  )] + x[FLUID_IX(  0, 1)]);
-		x[FLUID_IX(  0, NY+1)] = 0.5f * (x[FLUID_IX(1, NY+1)] + x[FLUID_IX(  0, NY)]);
-		x[FLUID_IX(NX+1,   0)] = 0.5f * (x[FLUID_IX(NX, 0  )] + x[FLUID_IX(NX+1, 1)]);
-		x[FLUID_IX(NX+1, NY+1)] = 0.5f * (x[FLUID_IX(NX, NY+1)] + x[FLUID_IX(NX+1, NY)]);
+		x [FLUID_IX (0, 0)] = 0.5f * (x [FLUID_IX (1, 0)] + x [FLUID_IX (0, 1)]);
+		x [FLUID_IX (0, NY + 1)] = 0.5f * (x [FLUID_IX (1, NY + 1)] + x [FLUID_IX (0, NY)]);
+		x [FLUID_IX (NX + 1, 0)] = 0.5f * (x [FLUID_IX (NX, 0)] + x [FLUID_IX (NX + 1, 1)]);
+		x [FLUID_IX (NX + 1, NY + 1)] = 0.5f * (x [FLUID_IX (NX, NY + 1)] + x [FLUID_IX (NX + 1, NY)]);
 	}
 	
-	/*
-	void setBoundary02d(Vector2[] x)
-	{
-		int dst1, dst2, src1, src2;
-		int step = FLUID_IX(0, 1) - FLUID_IX(0, 0);
+	void setBoundary02d (Vector2[] x, bool doX)
+	{		
+		if (doX) {
 		
-		dst1 = FLUID_IX(0, 1);
-		src1 = FLUID_IX(1, 1);
-		dst2 = FLUID_IX(_NX+1, 1 );
-		src2 = FLUID_IX(_NX, 1);
-		if( wrap_x )
-			SWAP( src1, src2 );
-		for (int i = _NY; i > 0; --i )
-		{
-			x[dst1].x = x[src1].x;	dst1 += step;	src1 += step;	
-			x[dst2].x = x[src2].x;	dst2 += step;	src2 += step;	
+			int dst1, dst2, src1, src2;
+			int step = FLUID_IX (0, 1) - FLUID_IX (0, 0);
+		
+			dst1 = FLUID_IX (0, 1);
+			src1 = FLUID_IX (1, 1);
+			dst2 = FLUID_IX (NX + 1, 1);
+			src2 = FLUID_IX (NX, 1);
+			if (wrap_x)
+				SWAP (ref src1, ref src2);
+			for (int i = NY; i > 0; --i) {
+				x [dst1].x = x [src1].x;
+				dst1 += step;
+				src1 += step;	
+				x [dst2].x = x [src2].x;
+				dst2 += step;
+				src2 += step;	
+			}
+		
+			dst1 = FLUID_IX (1, 0);
+			src1 = FLUID_IX (1, 1);
+			dst2 = FLUID_IX (1, NY + 1);
+			src2 = FLUID_IX (1, NY);
+			if (wrap_y)
+				SWAP (ref src1,ref src2);
+			for (int i = NX; i > 0; --i) {
+				x [dst1++] = x [src1++];
+				x [dst2++] = x [src2++];	
+			}
+		
+			x [FLUID_IX (0, 0)].x = 0.5f * (x [FLUID_IX (1, 0)].x + x [FLUID_IX (0, 1)].x);
+			x [FLUID_IX (0, NY + 1)].x = 0.5f * (x [FLUID_IX (1, NY + 1)].x + x [FLUID_IX (0, NY)].x);
+			x [FLUID_IX (NX + 1, 0)].x = 0.5f * (x [FLUID_IX (NX, 0)].x + x [FLUID_IX (NX + 1, 1)].x);
+			x [FLUID_IX (NX + 1, NY + 1)].x = 0.5f * (x [FLUID_IX (NX, NY + 1)].x + x [FLUID_IX (NX + 1, NY)].x);
+		} else {
+			int dst1, dst2, src1, src2;
+			int step = FLUID_IX (0, 1) - FLUID_IX (0, 0);
+		
+			dst1 = FLUID_IX (0, 1);
+			src1 = FLUID_IX (1, 1);
+			dst2 = FLUID_IX (NX + 1, 1);
+			src2 = FLUID_IX (NX, 1);
+			if (wrap_x)
+				SWAP (ref src1, ref src2);
+			for (int i = NY; i > 0; --i) {
+				x [dst1].y = x [src1].y;
+				dst1 += step;
+				src1 += step;	
+				x [dst2].y = x [src2].y;
+				dst2 += step;
+				src2 += step;	
+			}
+		
+			dst1 = FLUID_IX (1, 0);
+			src1 = FLUID_IX (1, 1);
+			dst2 = FLUID_IX (1, NY + 1);
+			src2 = FLUID_IX (1, NY);
+			if (wrap_y)
+				SWAP (ref src1,ref src2);
+			for (int i = NX; i > 0; --i) {
+				x [dst1++] = x [src1++];
+				x [dst2++] = x [src2++];	
+			}
+		
+			x [FLUID_IX (0, 0)].y = 0.5f * (x [FLUID_IX (1, 0)].y + x [FLUID_IX (0, 1)].y);
+			x [FLUID_IX (0, NY + 1)].y = 0.5f * (x [FLUID_IX (1, NY + 1)].y + x [FLUID_IX (0, NY)].y);
+			x [FLUID_IX (NX + 1, 0)].y = 0.5f * (x [FLUID_IX (NX, 0)].y + x [FLUID_IX (NX + 1, 1)].y);
+			x [FLUID_IX (NX + 1, NY + 1)].y = 0.5f * (x [FLUID_IX (NX, NY + 1)].y + x [FLUID_IX (NX + 1, NY)].y);
 		}
-		
-		dst1 = FLUID_IX(1, 0);
-		src1 = FLUID_IX(1, 1);
-		dst2 = FLUID_IX(1, _NY+1);
-		src2 = FLUID_IX(1, _NY);
-		if( wrap_y )
-			SWAP( src1, src2 );
-		for (int i = _NX; i > 0; --i )
-		{
-			x[dst1++] = x[src1++];
-			x[dst2++] = x[src2++];	
-		}
-		
-		x[FLUID_IX(  0,   0)].x = 0.5f * (x[FLUID_IX(1, 0  )].x + x[FLUID_IX(  0, 1)].x);
-		x[FLUID_IX(  0, _NY+1)].x = 0.5f * (x[FLUID_IX(1, _NY+1)].x + x[FLUID_IX(  0, _NY)].x);
-		x[FLUID_IX(_NX+1,   0)].x = 0.5f * (x[FLUID_IX(_NX, 0  )].x + x[FLUID_IX(_NX+1, 1)].x);
-		x[FLUID_IX(_NX+1, _NY+1)].x = 0.5f * (x[FLUID_IX(_NX, _NY+1)].x + x[FLUID_IX(_NX+1, _NY)].x);
 	}
-	*/
-	void setBoundary2d( int bound, Vector2[] xy )
+	
+	void setBoundary2d (int bound, Vector2[] xy)
 	{
 		int dst1, dst2, src1, src2;
-		int step = FLUID_IX(0, 1) - FLUID_IX(0, 0);
+		int step = FLUID_IX (0, 1) - FLUID_IX (0, 0);
 		
-		dst1 = FLUID_IX(0, 1);
-		src1 = FLUID_IX(1, 1);
-		dst2 = FLUID_IX(NX+1, 1 );
-		src2 = FLUID_IX(NX, 1);
-		if( wrap_x )
-			SWAP(ref src1, ref src2 );
-		if( bound == 1 && !wrap_x )
-			for (int i = NY; i > 0; --i )
-			{
-				xy[dst1].x = -xy[src1].x;	dst1 += step;	src1 += step;	
-				xy[dst2].x = -xy[src2].x;	dst2 += step;	src2 += step;	
+		dst1 = FLUID_IX (0, 1);
+		src1 = FLUID_IX (1, 1);
+		dst2 = FLUID_IX (NX + 1, 1);
+		src2 = FLUID_IX (NX, 1);
+		if (wrap_x)
+			SWAP (ref src1, ref src2);
+		if (bound == 1 && !wrap_x)
+			for (int i = NY; i > 0; --i) {
+				xy [dst1].x = -xy [src1].x;
+				dst1 += step;
+				src1 += step;	
+				xy [dst2].x = -xy [src2].x;
+				dst2 += step;
+				src2 += step;	
 			}
 		else
-			for (int i = NY; i > 0; --i )
-			{
-				xy[dst1].x = xy[src1].x;	dst1 += step;	src1 += step;	
-				xy[dst2].x = xy[src2].x;	dst2 += step;	src2 += step;	
+			for (int i = NY; i > 0; --i) {
+				xy [dst1].x = xy [src1].x;
+				dst1 += step;
+				src1 += step;	
+				xy [dst2].x = xy [src2].x;
+				dst2 += step;
+				src2 += step;	
 			}
 		
-		dst1 = FLUID_IX(1, 0);
-		src1 = FLUID_IX(1, 1);
-		dst2 = FLUID_IX(1, NY+1);
-		src2 = FLUID_IX(1, NY);
-		if( wrap_y )
-			SWAP( ref src1, ref src2 );
-		if( bound == 2 && !wrap_y )
-			for (int i = NX; i > 0; --i )
-			{
-				xy[dst1++].y = -xy[src1++].y;	
-				xy[dst2++].y = -xy[src2++].y;	
+		dst1 = FLUID_IX (1, 0);
+		src1 = FLUID_IX (1, 1);
+		dst2 = FLUID_IX (1, NY + 1);
+		src2 = FLUID_IX (1, NY);
+		if (wrap_y)
+			SWAP (ref src1, ref src2);
+		if (bound == 2 && !wrap_y)
+			for (int i = NX; i > 0; --i) {
+				xy [dst1++].y = -xy [src1++].y;	
+				xy [dst2++].y = -xy [src2++].y;	
 			}
 		else
-			for (int i = NX; i > 0; --i )
-			{
-				xy[dst1++].y = xy[src1++].y;
-				xy[dst2++].y = xy[src2++].y;	
+			for (int i = NX; i > 0; --i) {
+				xy [dst1++].y = xy [src1++].y;
+				xy [dst2++].y = xy [src2++].y;	
 			}
 		
-		xy[FLUID_IX(  0,   0)][bound-1] = 0.5f * (xy[FLUID_IX(1, 0  )][bound-1] + xy[FLUID_IX(  0, 1)][bound-1]);
-		xy[FLUID_IX(  0, NY+1)][bound-1] = 0.5f * (xy[FLUID_IX(1, NY+1)][bound-1] + xy[FLUID_IX(  0, NY)][bound-1]);
-		xy[FLUID_IX(NX+1,   0)][bound-1] = 0.5f * (xy[FLUID_IX(NX, 0  )][bound-1] + xy[FLUID_IX(NX+1, 1)][bound-1]);
-		xy[FLUID_IX(NX+1, NY+1)][bound-1] = 0.5f * (xy[FLUID_IX(NX, NY+1)][bound-1] + xy[FLUID_IX(NX+1, NY)][bound-1]);
+		xy [FLUID_IX (0, 0)] [bound - 1] = 0.5f * (xy [FLUID_IX (1, 0)] [bound - 1] + xy [FLUID_IX (0, 1)] [bound - 1]);
+		xy [FLUID_IX (0, NY + 1)] [bound - 1] = 0.5f * (xy [FLUID_IX (1, NY + 1)] [bound - 1] + xy [FLUID_IX (0, NY)] [bound - 1]);
+		xy [FLUID_IX (NX + 1, 0)] [bound - 1] = 0.5f * (xy [FLUID_IX (NX, 0)] [bound - 1] + xy [FLUID_IX (NX + 1, 1)] [bound - 1]);
+		xy [FLUID_IX (NX + 1, NY + 1)] [bound - 1] = 0.5f * (xy [FLUID_IX (NX, NY + 1)] [bound - 1] + xy [FLUID_IX (NX + 1, NY)] [bound - 1]);
 	}
 
-		void setBoundaryRGB()
+	void setBoundaryRGB ()
 	{
 		int dst1, dst2, src1, src2;
-		int step = FLUID_IX(0, 1) - FLUID_IX(0, 0);
+		int step = FLUID_IX (0, 1) - FLUID_IX (0, 0);
 		
-		dst1 = FLUID_IX(0, 1);
-		src1 = FLUID_IX(1, 1);
-		dst2 = FLUID_IX(NX+1, 1 );
-		src2 = FLUID_IX(NX, 1);
-		if( wrap_x )
-			SWAP(ref src1,ref src2 );
-		for (int i = NY; i > 0; --i )
-		{
-			color[dst1] = color[src1];
+		dst1 = FLUID_IX (0, 1);
+		src1 = FLUID_IX (1, 1);
+		dst2 = FLUID_IX (NX + 1, 1);
+		src2 = FLUID_IX (NX, 1);
+		if (wrap_x)
+			SWAP (ref src1, ref src2);
+		for (int i = NY; i > 0; --i) {
+			color [dst1] = color [src1];
 			dst1 += step;
 			src1 += step;	
 			
-			color[dst2] = color[src2];
+			color [dst2] = color [src2];
 			dst2 += step;
 			src2 += step;	
 		}
 		
-		dst1 = FLUID_IX(1, 0);
-		src1 = FLUID_IX(1, 1);
-		dst2 = FLUID_IX(1, NY+1);
-		src2 = FLUID_IX(1, NY);
-		if( wrap_y )
-			SWAP(ref src1, ref src2 );
-		for (int i = NX; i > 0; --i )
-		{
-			color[dst1] = color[src1];
+		dst1 = FLUID_IX (1, 0);
+		src1 = FLUID_IX (1, 1);
+		dst2 = FLUID_IX (1, NY + 1);
+		src2 = FLUID_IX (1, NY);
+		if (wrap_y)
+			SWAP (ref src1, ref src2);
+		for (int i = NX; i > 0; --i) {
+			color [dst1] = color [src1];
 			++dst1;
 			++src1;	
 			
-			color[dst2] = color[src2];
+			color [dst2] = color [src2];
 			++dst2;
 			++src2;	
 		}
-		}
+	}
 }

@@ -8,7 +8,8 @@ public class FluidDrawer : MonoBehaviour {
 	public Texture2D tex;
 	
 	int index;
-		
+	bool debugForces = true;
+	
 	void Start () {
 	
 	}
@@ -17,6 +18,8 @@ public class FluidDrawer : MonoBehaviour {
 		
 		
 		UpdateTexture();
+		
+		if(debugForces) DebugForces();
 	}
 	
 	
@@ -30,7 +33,26 @@ public class FluidDrawer : MonoBehaviour {
 	public void DrawPixel(int x, int y){
 		index = y*solver.height + x;
 		
-		solver.colorOld[index] = new Color(100,0,0);
+		solver.colorOld[index] = new Color(100,0,0);		
+	}
+	
+	public void AddForce(int x, int y, Vector2 f){
+		index = y*solver.height + x;
 		
+		solver.uvOld[index] += f;		
+	}
+	
+	public void DebugForces(){
+		float w = renderer.bounds.extents.x;
+		
+		float h = renderer.bounds.extents.z;
+		
+		Vector2 pos = new Vector2(0, 0);
+		
+		Vector2 dir = new Vector2(0, 0);
+		
+		//for(int i=0; i<solver.  c in solver.color
+			
+		//Debug.DrawLine(pos, dir);
 	}
 }
