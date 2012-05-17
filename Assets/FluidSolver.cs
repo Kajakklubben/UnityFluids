@@ -21,8 +21,8 @@ public class FluidSolver : MonoBehaviour {
 	
 	//-----
 	
-	float width;
-	float height;
+	public int width;
+	public int height;
 	float invWidth;
 	float invHeight;	
 	int		_numCells;

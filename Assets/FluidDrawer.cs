@@ -2,19 +2,15 @@ using UnityEngine;
 using System.Collections;
 
 public class FluidDrawer : MonoBehaviour {
-	
-	int fluid_width = 64;
-	int fluid_height = 64;
-	
-	public Color[] color;
+
+	public FluidSolver solver;
 	
 	public Texture2D tex;
 	
 	int index;
 		
 	void Start () {
-		color = new Color[fluid_width*fluid_height];
-		
+	
 	}
 		
 	void Update () {
@@ -25,15 +21,16 @@ public class FluidDrawer : MonoBehaviour {
 	
 	
 	void UpdateTexture(){
-		tex.SetPixels(color);
+		
+		tex.SetPixels(solver.color);
+		
 		tex.Apply();
 	}
 	
 	public void DrawPixel(int x, int y){
-		index = y*fluid_height + x;
+		index = y*solver.height + x;
 		
-		
-		color[index] = new Color(100,0,0);
+		solver.color[index] = new Color(100,0,0);
 		
 	}
 }
