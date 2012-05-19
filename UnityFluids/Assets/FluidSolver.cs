@@ -6,7 +6,7 @@ public class FluidSolver : MonoBehaviour
 {
 	public float dt, diff, visc;
 	
-	static int N = 128-2;
+	static int N = 64-2;
 	public static int width = N+2;
 	public static int height = N+2;
 	int size = width*height;
@@ -14,7 +14,7 @@ public class FluidSolver : MonoBehaviour
 	public float[] u, v, u_prev, v_prev; 
 	public Color[] dens, dens_prev;	
 	
-	int solverIterations = 5;
+	int solverIterations = 10;
 	
 	//----//Public Functions//----//	
 	public void ColorArea()
