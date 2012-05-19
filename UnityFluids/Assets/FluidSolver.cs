@@ -6,7 +6,7 @@ public class FluidSolver : MonoBehaviour
 {
 	public float dt, diff, visc;
 	
-	static int N = 64-2;
+	static int N = 128-2;
 	public static int width = N+2;
 	public static int height = N+2;
 	int size = width*height;
@@ -31,6 +31,15 @@ public class FluidSolver : MonoBehaviour
 			dens_prev[i] = new Color(1*y, 0, 1*x, 1); //dens_prev[i] += 255.0f;		
 		}
 	}		
+	
+	public void SetSize(int width, int height)
+	{
+		N = width-2;
+		FluidSolver.width = width;
+		FluidSolver.height =height;
+		int size = width*height;
+	}
+	
 	
 	public void AddForce(Vector2 p, Vector2 f)
 	{
@@ -65,7 +74,7 @@ public class FluidSolver : MonoBehaviour
 	
 		for (int i=0 ; i<size ; i++ ) {
 			u_prev[i] = v_prev[i] = 0.0f;
-			dens_prev[i] = new Color(0,0,0,0);
+			dens_prev[i] = Color.clear;
 		}		
 	}
 	

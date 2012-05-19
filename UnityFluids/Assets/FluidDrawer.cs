@@ -16,7 +16,8 @@ public class FluidDrawer : MonoBehaviour {
 //	Color[] colors;
 	
 	void Start () {
-//		colors = new Color[solver.GetSize()];				
+//		colors = new Color[solver.GetSize()];	
+		solver.SetSize(tex.width ,tex.height);
 	}
 		
 	void Update () {
