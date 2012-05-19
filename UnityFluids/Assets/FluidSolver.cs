@@ -19,7 +19,7 @@ public class FluidSolver : MonoBehaviour
 	//----//Public Functions//----//	
 	public void ColorArea()
 	{
-		for(var i=0; i<size/2; i++)
+		for(var i=0; i<size; i++)
 		{
 			
 			float y = Mathf.Round(i/width);
@@ -37,7 +37,7 @@ public class FluidSolver : MonoBehaviour
 		N = width-2;
 		FluidSolver.width = width;
 		FluidSolver.height =height;
-		int size = width*height;
+		size = width*height;
 	}
 	
 	
@@ -49,11 +49,10 @@ public class FluidSolver : MonoBehaviour
 		v_prev[i] += f.y;		
 	}
 	
-	public void DrawPixel(Vector2 p, Color c)
+	public void AddDensity(Vector2 p, Color c)
 	{
-		int i = (int)p.y * height + (int)p.x;
-		
-		dens_prev[i] = c;//255.0f;		
+		int i = (int)p.y * height + (int)p.x;		
+		dens_prev[i] = c;//255.0f;	
 	}
 	
 	//----///Solver//----//
@@ -61,7 +60,7 @@ public class FluidSolver : MonoBehaviour
 	{		
 		reset ();
 		
-		ColorArea();
+		//ColorArea();
 	}
 	
 	void Update ()

@@ -52,7 +52,7 @@ public class FluidMouseInput : MonoBehaviour {
 		uv.x *= tex.width;
 	    uv.y *= tex.height;			
 		
-		solver.DrawPixel(uv, drawColor);
+		solver.AddDensity(uv, drawColor);		
 		
 		//Apply force
 		if(applyForce){

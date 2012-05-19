@@ -1,0 +1,14 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/FluidSolver.cs">
+    <Files>
+      <File FileName="Assets/FluidSolver.cs" Line="63" Column="5" />
+      <File FileName="Assets/FluidMouseInput.cs" Line="55" Column="3" />
+      <File FileName="Assets/FluidParticles.cs" Line="31" Column="4" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

@@ -44,6 +44,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\FluidAdder.cs" />
      <Compile Include="Assets\FluidDrawer.cs" />
      <Compile Include="Assets\FluidMouseInput.cs" />
      <Compile Include="Assets\FluidParticles.cs" />
