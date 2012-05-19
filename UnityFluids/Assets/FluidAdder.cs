@@ -78,10 +78,13 @@ public class FluidAdder : MonoBehaviour {
 	void EmitDensity()
 	{		
 		solver.AddDensity(pos, color);
-		solver.AddDensity(new Vector2(pos.x-1, pos.y), color);
-		solver.AddDensity(new Vector2(pos.x+1, pos.y), color);
-		solver.AddDensity(new Vector2(pos.x, pos.y+1), color);
-		solver.AddDensity(new Vector2(pos.x, pos.y-1), color);
+		if(emitLargeDensity)
+		{
+			solver.AddDensity(new Vector2(pos.x-1, pos.y), color);
+			solver.AddDensity(new Vector2(pos.x+1, pos.y), color);
+			solver.AddDensity(new Vector2(pos.x, pos.y+1), color);
+			solver.AddDensity(new Vector2(pos.x, pos.y-1), color);
+		}
 	}
 	
 	void FindPosition()
