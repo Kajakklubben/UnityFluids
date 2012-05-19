@@ -46,6 +46,7 @@
   <ItemGroup>
      <Compile Include="Assets\FluidDrawer.cs" />
      <Compile Include="Assets\FluidMouseInput.cs" />
+     <Compile Include="Assets\FluidParticles.cs" />
      <Compile Include="Assets\FluidSolver.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
