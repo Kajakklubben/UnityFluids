@@ -6,10 +6,15 @@ public class FluidDrawer : MonoBehaviour {
 	public FluidSolver solver;
 	
 	public Texture2D tex;
+	public Texture2D buffer;
+	public RenderTexture renderTex;
 	
 	public bool debugForces = false;
 	
 	public float debugScale = 5.0f;
+	public float movementThreshold = 0.0010f;
+	public float FluidFadeOut;
+	public float AddRate = 0.05f;
 	
 	int index;
 	
@@ -18,6 +23,7 @@ public class FluidDrawer : MonoBehaviour {
 	void Start () {
 //		colors = new Color[solver.GetSize()];	
 		solver.SetSize(tex.width ,tex.height);
+		
 	}
 		
 	void Update () {
@@ -31,20 +37,30 @@ public class FluidDrawer : MonoBehaviour {
 	
 	void UpdateTexture()
 	{
-		//for(int i=0;i<solver.GetSize();i++){
-			/*float y = Mathf.Round(i/FluidSolver.width);
-			y /= FluidSolver.height;
-			
-			float x = i%FluidSolver.width;
-			x /= FluidSolver.width;
-			
-			colors[i].b = solver.dens[i]/255.0f*y;
-			colors[i].r = solver.dens[i]/255.0f*x;			
-			colors[i].a = solver.dens[i]/255.0f;*/
-		//	colors[i] = solver.dens[i];
-		//}
-		
+		RenderTexture.active = renderTex;
 		tex.SetPixels(solver.dens);
+		
+		buffer.ReadPixels(new Rect(0, 0, renderTex.width, renderTex.height), 0, 0);
+		
+		float velX,velY;
+		int i = 0;
+		foreach(Color c in solver.dens)
+		{
+			int y = Mathf.RoundToInt(i/FluidSolver.width);
+			int x = i % FluidSolver.width;
+			
+			
+			solver.dens[i]*=1f-AddRate;
+			solver.dens[i] += buffer.GetPixel(x,y)*AddRate;
+			
+			velX = Mathf.Abs(solver.u[i]);
+			velY = Mathf.Abs(solver.v[i]);
+			
+			if(velX<movementThreshold && velY<movementThreshold)
+				solver.dens[i].a = Mathf.Clamp(solver.dens[i].a-Time.deltaTime*FluidFadeOut,0f,1f);
+			
+			i++;
+		}
 		
 		tex.Apply();
 	}

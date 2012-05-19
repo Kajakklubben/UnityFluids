@@ -37,7 +37,8 @@ public class FluidParticles : MonoBehaviour {
 			int i = y * FluidSolver.height + (int)x;
 			vel.x = -Solver.u[i];		
 			vel.z = -Solver.v[i];
-			p.transform.position+=vel*ParticleSpeed*Time.deltaTime;
+			p.position+=vel*ParticleSpeed*Time.deltaTime;
+			p.LookAt(p.position+vel);
 		}
 		
 	}
