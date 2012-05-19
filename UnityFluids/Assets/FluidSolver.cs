@@ -308,8 +308,8 @@ public class FluidSolver : MonoBehaviour
 			u_prev [i] = 0;
 			v [i] = 0;
 			v_prev [i] = 0;
-			dens [i] = new Color(0,0,0,0);
-			dens_prev [i] = new Color(0,0,0,0);
+			dens [i] = Color.clear;
+			dens_prev [i] = Color.clear;
 		}		
 	}
 	
