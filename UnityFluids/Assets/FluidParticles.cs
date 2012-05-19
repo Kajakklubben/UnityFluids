@@ -38,7 +38,7 @@ public class FluidParticles : MonoBehaviour {
 			vel.x = -Solver.u[i];		
 			vel.z = -Solver.v[i];
 			p.position+=vel*ParticleSpeed*Time.deltaTime;
-			p.LookAt(p.position+vel);
+			iTween.LookUpdate(p.gameObject,p.position+vel,10f);
 		}
 		
 	}
